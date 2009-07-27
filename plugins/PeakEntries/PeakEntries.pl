@@ -23,7 +23,7 @@ use MT::Util qw(offset_time_list);
 
 # version
 use vars qw($VERSION);
-$VERSION = '1.3.2';
+$VERSION = '1.3.3';
 
 my $about = {
   name => 'MT-PeakEntries',
@@ -101,10 +101,10 @@ sub PeakEntries {
       my $cats;
       my @cat_ids;
       if ($args->{primary}) {
-        $cats = $_->category;
-        @cat_ids = map { $_->id } @$cats;
+        push @cat_ids, $_->category;
       } else {
-        push @cat_ids, $_->categories;
+        $cats = $_->categories;
+        @cat_ids = map { $_->id } @$cats;
       }
       my @cats;
       if ($negative) {
