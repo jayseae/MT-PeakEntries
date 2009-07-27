@@ -4,7 +4,7 @@ This [Movable Type](http://www.movabletype.org) plugin provides an entry contain
 
 ## Version ##
 
-1.3.0
+1.3.1
 
 ## Requirements ##
 
@@ -131,6 +131,7 @@ This example will select only entries that do not have either category Foo or Ba
 
 ## Version History ##
 
+* 2005/11/21 - 1.3.1 - Removed Error-Creating Code
 * 2005/11/16 - 1.3.0 - Added Primary Attribute
 * 2005/09/23 - 1.2.2 - Remove Entries w/o Category, Updated Registration
 * 2005/09/15 - 1.2.1 - Standardized Plugin Directory Name

@@ -23,7 +23,7 @@ use MT::Util qw(offset_time_list);
 
 # version
 use vars qw($VERSION);
-$VERSION = '1.3.0';
+$VERSION = '1.3.1';
 
 my $about = {
   name => 'MT-PeakEntries',
@@ -77,7 +77,6 @@ sub PeakEntries {
   }
   my @site_entries = MT::Entry->load(\%terms, \%args);
   @site_entries = sort { $b->created_on cmp $a->created_on } @site_entries;
-  @site_entries = grep { exists $_->category } @site_entries if ($type eq 'cat');
 
   # filtered entry list (blog)
   my @blog_entries;
