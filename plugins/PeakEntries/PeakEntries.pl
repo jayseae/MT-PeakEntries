@@ -23,7 +23,7 @@ use MT::Util qw(offset_time_list);
 
 # version
 use vars qw($VERSION);
-$VERSION = '1.2.0';
+$VERSION = '1.2.1';
 
 my $plugin;
 my $about = {

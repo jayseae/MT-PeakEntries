@@ -4,7 +4,7 @@ This [Movable Type](http://www.movabletype.org) plugin provides an entry contain
 
 ## Version ##
 
-1.1.0
+1.2.1
 
 ## Requirements ##
 
@@ -18,7 +18,7 @@ This program is distributed under the terms of the GNU General Public License, v
 
 Install the necessary files to your web server.  MT_HOME is the location of your primary Movable Type installation (mt.cgi can be found here).
 
-Simply drop the directory `plugins/MT-PeakEntries` contained in this archive into your `MT_HOME/plugins` directory.
+Simply drop the directory `plugins/PeakEntries` contained in this archive into your `MT_HOME/plugins` directory.
 
 If you are running under FastCGI or other persistent environment, you will need to restart your webserver in order to activate the plugin in your Movable Type installation.
 
@@ -121,6 +121,7 @@ The attributes can be combined, to produce (for example), the top 25 entries ove
 
 ## Version History ##
 
+* 2005/09/15 - 1.2.1 - Standardized Plugin Directory Name
 * 2005/09/14 - 1.2.0 - Added Negative Category Processing
 * 2005/09/11 - 1.1.0 - Added "cat" Mode and Related Processing
 * 2005/08/24 - 1.0.0 - Initial Public Release
