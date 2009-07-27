@@ -4,7 +4,7 @@ This [Movable Type](http://www.movabletype.org) plugin provides an entry contain
 
 ## Version ##
 
-1.3.3
+1.3.4
 
 ## Requirements ##
 
@@ -12,7 +12,7 @@ This [Movable Type](http://www.movabletype.org) plugin provides an entry contain
 
 ## License ##
 
-This program is distributed under the terms of the GNU General Public License, version 2.
+This program is free software:  You may redistribute it and/or modify it it under the terms of the [Artistic License](http://www.opensource.org/licenses/artistic-license-2.0.php) version 2 as published by the Open Source Initiative.
 
 ## Installation ##
 
@@ -131,6 +131,7 @@ This example will select only entries that do not have either category Foo or Ba
 
 ## Version History ##
 
+* 2005/11/22 - 1.3.4 - Really, Really Fixed it this Time
 * 2005/11/21 - 1.3.3 - Really Fixed it this Time
 * 2005/11/21 - 1.3.2 - Fixed Handling of the Primary Tag
 * 2005/11/21 - 1.3.1 - Removed Error-Creating Code
