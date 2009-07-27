@@ -4,7 +4,7 @@ This [Movable Type](http://www.movabletype.org) plugin provides an entry contain
 
 ## Version ##
 
-1.2.2
+1.3.0
 
 ## Requirements ##
 
@@ -119,8 +119,19 @@ There is no default limit, meaning if you don't include one, it will show all en
 
 The attributes can be combined, to produce (for example), the top 25 entries over the last 30 days.
 
+One final option you can use is the "primary" attribute.  This allows you to select only entries that have the category specified as their primary one.
+
+Where this starts to get confusing is if you have included an attribute - or attributes - using the "NOT" selector.  For instance:
+
+    <MTPeakEntries category="NOT Foo OR Bar" primary="1">
+    <a href="<MTEntryPermalink>"><MTEntryTitle></a><br />
+    </MTPeakEntries>
+
+This example will select only entries that do not have either category Foo or Bar as their primary.  If you use it the other way around, without NOT, then it's probably going to make a bit more sense.  But you can choose how you'd prefer to use it.
+
 ## Version History ##
 
+* 2005/11/16 - 1.3.0 - Added Primary Attribute
 * 2005/09/23 - 1.2.2 - Remove Entries w/o Category, Updated Registration
 * 2005/09/15 - 1.2.1 - Standardized Plugin Directory Name
 * 2005/09/14 - 1.2.0 - Added Negative Category Processing

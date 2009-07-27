@@ -23,14 +23,13 @@ use MT::Util qw(offset_time_list);
 
 # version
 use vars qw($VERSION);
-$VERSION = '1.2.2';
+$VERSION = '1.3.0';
 
-my $plugin;
 my $about = {
   name => 'MT-PeakEntries',
   description => 'A container tag for the most popular entries.',
   author_name => 'Everitz Consulting',
-  author_link => 'http://www.everitz.com/',
+  author_link => 'http://everitz.com/',
   version => $VERSION,
 };
 MT->add_plugin(new MT::Plugin($about));
@@ -100,7 +99,12 @@ sub PeakEntries {
       map { MT::Category->load({ label => $_ }) } 
       split(/\sOR\s/, $category);
     foreach (@blog_entries) {
-      my $cats = $_->categories;
+      my $cats;
+      if ($args->{primary}) {
+        $cats = $_->category;
+      } else {
+        $cats = $_->categories;
+      }
       my @cat_ids = map { $_->id } @$cats;
       my @cats;
       if ($negative) {
