@@ -121,8 +121,9 @@ The attributes can be combined, to produce (for example), the top 25 entries ove
 
 ## Version History ##
 
-* 2005/09/11 - Added "cat" Mode and Related Processing
-* 2005/08/24 - Initial Public Release
+* 2005/09/14 - 1.2.0 - Added Negative Category Processing
+* 2005/09/11 - 1.1.0 - Added "cat" Mode and Related Processing
+* 2005/08/24 - 1.0.0 - Initial Public Release
 
 ## Support ##
 

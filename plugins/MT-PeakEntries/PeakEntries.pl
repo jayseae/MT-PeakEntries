@@ -23,7 +23,7 @@ use MT::Util qw(offset_time_list);
 
 # version
 use vars qw($VERSION);
-$VERSION = '1.1.0';
+$VERSION = '1.2.0';
 
 my $plugin;
 my $about = {
@@ -92,15 +92,23 @@ sub PeakEntries {
   # filtered entry list (category)
   my @cat_entries;
   if ($args->{category}) {
+    my $category = $args->{category};
+    my $negative = ($category =~ s/^NOT\s//) ? 1 : 0;
     use MT::Category;
     my %category =
       map { $_->id => 1 }
       map { MT::Category->load({ label => $_ }) } 
-      split(/\sOR\s/, $args->{category});
+      split(/\sOR\s/, $category);
     foreach (@blog_entries) {
       my $cats = $_->categories;
       my @cat_ids = map { $_->id } @$cats;
-      my @cats = grep { exists $category{$_} } @cat_ids;
+      my @cats;
+      if ($negative) {
+        @cats = grep { !exists $category{$_} } @cat_ids;
+        next unless (@cats == @cat_ids);
+      } else {
+        @cats = grep { exists $category{$_} } @cat_ids;
+      }
       push @cat_entries, $_ if (scalar @cats);
     }
   } else {
