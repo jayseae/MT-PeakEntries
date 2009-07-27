@@ -1,7 +1,17 @@
 # ===========================================================================
-# Copyright 2003-2005, Everitz Consulting (mt@everitz.com)
+# A Movable Type plugin to show the most popular entries on the system.
+# Copyright 2005 Everitz Consulting <everitz.com>.
 #
-# Licensed under the Open Software License version 2.1
+# This program is free software:  You may redistribute it and/or modify it
+# it under the terms of the Artistic License version 2 as published by the
+# Open Source Initiative.
+#
+# This program is distributed in the hope that it will be useful but does
+# NOT INCLUDE ANY WARRANTY; Without even the implied warranty of FITNESS
+# FOR A PARTICULAR PURPOSE.
+#
+# You should have received a copy of the Artistic License with this program.
+# If not, see <http://www.opensource.org/licenses/artistic-license-2.0.php>.
 # ===========================================================================
 package MT::Plugin::PeakEntries;
 
@@ -13,7 +23,7 @@ use MT::Util qw(offset_time_list);
 
 # version
 use vars qw($VERSION);
-$VERSION = '1.0.0';
+$VERSION = '1.1.0';
 
 my $plugin;
 my $about = {
@@ -28,13 +38,15 @@ MT->add_plugin($plugin);
 
 use MT::Template::Context;
 MT::Template::Context->add_container_tag(PeakEntries => \&PeakEntries);
+MT::Template::Context->add_conditional_tag(PeakEntriesCategoryFooter => \&ReturnValue);
+MT::Template::Context->add_conditional_tag(PeakEntriesCategoryHeader => \&ReturnValue);
 MT::Template::Context->add_tag(PeakEntriesCommentCount => \&ReturnValue);
 
 sub PeakEntries {
   my($ctx, $args, $cond) = @_;
 
   # limit entries
-  my $limit = $args->{limit} || 0;
+  my $lastn = $args->{lastn} || 0;
 
   # set time frame
   my $days = $args->{days} || 7;
@@ -45,53 +57,94 @@ sub PeakEntries {
   my $ago = sprintf "%04d%02d%02d%02d%02d%02d", $ago[5]+1900, $ago[4]+1, @ago[3,2,1,0];
   my @now = offset_time_list(time);
   my $now = sprintf "%04d%02d%02d%02d%02d%02d", $now[5]+1900, $now[4]+1, @now[3,2,1,0];
+  my (%args, %terms);
 
-  # load entries with comments in last $days
   use MT::Entry;
-  use MT::Comment;
-  my @entries = MT::Entry->load(
-    { status => MT::Entry::RELEASE() },
-    { join => [ 'MT::Comment', 'entry_id',
-        { created_on => [ $ago, $now ],
-          visible => 1 },
-        { range => { created_on => 1 },
-          unique => 1 } ]}
-    );
+  $terms{'status'} = MT::Entry::RELEASE();
 
-  # put entries into hash
-  my %entries = map { $_->id => MT::Comment->count(
-    { entry_id => $_->id,
-      created_on => [ $ago, $now ],
-      visible => 1 },
-    { range => { created_on => 1 }}
-  ) } @entries;
+  # load entries
+  my $type = $args->{type} || 'pop';
+  if ($type eq 'pop') {
+    use MT::Comment;
+    $args{'join'} = [
+      'MT::Comment', 'entry_id',
+      { created_on => [ $ago, $now ],
+        visible => 1 },
+      { range => { created_on => 1 },
+        unique => 1 }
+    ];
+  } else {
+    $terms{'created_on'} = [ $ago, $now ];
+    $args{'range'} = { created_on => 1 };
+  }
+  my @site_entries = MT::Entry->load(\%terms, \%args);
+  @site_entries = sort { $b->created_on cmp $a->created_on } @site_entries;
 
-  # sort hash by number of comments
-  my @entry_ids = sort { $entries{$b} <=> $entries{$a} } keys (%entries);
+  # filtered entry list (blog)
+  my @blog_entries;
+  if ($args->{blog}) {
+    my %blog = map { $_ => 1 } split(/\sOR\s/, $args->{blog});
+    @blog_entries = grep { exists $blog{$_->blog_id} } @site_entries;
+  } else {
+    @blog_entries = @site_entries;
+  }
 
-  # load entries from there into array
-  @entries = map { MT::Entry->load($_) } @entry_ids;
+  # filtered entry list (category)
+  my @cat_entries;
+  if ($args->{category}) {
+    use MT::Category;
+    my %category =
+      map { $_->id => 1 }
+      map { MT::Category->load({ label => $_ }) } 
+      split(/\sOR\s/, $args->{category});
+    foreach (@blog_entries) {
+      my $cats = $_->categories;
+      my @cat_ids = map { $_->id } @$cats;
+      my @cats = grep { exists $category{$_} } @cat_ids;
+      push @cat_entries, $_ if (scalar @cats);
+    }
+  } else {
+    @cat_entries = @blog_entries;
+  }
 
-  # build container
-  my $builder = $ctx->stash('builder');
-  my $tokens = $ctx->stash('tokens');
-  my $res = '';
-  my $done = 0;
-
-  # check for any entries
-  foreach (@entries) {
-    last if ($limit && $done >= $limit);
-    my $count = MT::Comment->count(
+  my @entries;
+  my %entry_count;
+  if ($type eq 'cat') {
+    @entries = sort { $a->category->label cmp $b->category->label } @cat_entries;
+  } elsif ($type eq 'pop') {
+    my %entry = map { $_->id => $_ } @cat_entries;
+    %entry_count = map { $_->id => MT::Comment->count(
       { entry_id => $_->id,
         created_on => [ $ago, $now ],
         visible => 1 },
       { range => { created_on => 1 }}
-    );
+    ) } @cat_entries;
+    my @entry_ids = sort { $entry_count{$b} <=> $entry_count{$a} } keys (%entry);
+    @entries = map { $entry{$_} } @entry_ids;
+  }
+
+  my $builder = $ctx->stash('builder');
+  my $tokens = $ctx->stash('tokens');
+  my $res = '';
+
+  my $done = 0;
+  my $last_cat = 0;
+  foreach (@entries) {
+    last if ($lastn && $done >= $lastn);
+    my $this_cat = $_->category;
+    my $next_cat = 0;
+    if (defined $entries[$done+1]) {
+      $next_cat = $entries[$done+1]->category;
+    }
     eval ("use MT::Promise qw(delay);");
     $ctx->{__stash}{entry} = $_ if $@;
     $ctx->{__stash}{entry} = delay (sub { $_; }) unless $@;
-    $ctx->{__stash}{peakentriescommentcount} = $count;
+    $ctx->{__stash}{PeakEntriesCommentCount} =
+      ($type eq 'pop') ? $entry_count{$_->id} : 0;
+    $ctx->{__stash}{PeakEntriesCategoryFooter} = ($this_cat ne $next_cat);
+    $ctx->{__stash}{PeakEntriesCategoryHeader} = ($this_cat ne $last_cat);
     my $out = $builder->build($ctx, $tokens);
+    $last_cat = $this_cat;
     return $ctx->error($builder->errstr) unless defined $out;
     $res .= $out;
     $done++;
@@ -101,7 +154,7 @@ sub PeakEntries {
 
 sub ReturnValue {
   my ($ctx, $args) = @_;
-  my $val = $ctx->stash(lc($ctx->stash('tag')));
+  my $val = $ctx->stash($ctx->stash('tag'));
   $val;
 }
 
