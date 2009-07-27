@@ -23,7 +23,7 @@ use MT::Util qw(offset_time_list);
 
 # version
 use vars qw($VERSION);
-$VERSION = '1.2.1';
+$VERSION = '1.2.2';
 
 my $plugin;
 my $about = {
@@ -33,8 +33,7 @@ my $about = {
   author_link => 'http://www.everitz.com/',
   version => $VERSION,
 };
-$plugin = MT::Plugin::PeakEntries->new($about);
-MT->add_plugin($plugin);
+MT->add_plugin(new MT::Plugin($about));
 
 use MT::Template::Context;
 MT::Template::Context->add_container_tag(PeakEntries => \&PeakEntries);
@@ -79,6 +78,7 @@ sub PeakEntries {
   }
   my @site_entries = MT::Entry->load(\%terms, \%args);
   @site_entries = sort { $b->created_on cmp $a->created_on } @site_entries;
+  @site_entries = grep { exists $_->category } @site_entries if ($type eq 'cat');
 
   # filtered entry list (blog)
   my @blog_entries;

@@ -4,7 +4,7 @@ This [Movable Type](http://www.movabletype.org) plugin provides an entry contain
 
 ## Version ##
 
-1.2.1
+1.2.2
 
 ## Requirements ##
 
@@ -121,6 +121,7 @@ The attributes can be combined, to produce (for example), the top 25 entries ove
 
 ## Version History ##
 
+* 2005/09/23 - 1.2.2 - Remove Entries w/o Category, Updated Registration
 * 2005/09/15 - 1.2.1 - Standardized Plugin Directory Name
 * 2005/09/14 - 1.2.0 - Added Negative Category Processing
 * 2005/09/11 - 1.1.0 - Added "cat" Mode and Related Processing
